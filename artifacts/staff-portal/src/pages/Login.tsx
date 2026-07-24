@@ -41,9 +41,9 @@ export default function Login() {
       </div>
 
       <main className="relative z-10 mx-auto flex min-h-[100dvh] w-full max-w-[1180px] items-center px-5 py-8 sm:px-8 lg:px-12">
-        <div className="grid w-full items-center gap-10 lg:grid-cols-[1fr_420px] lg:gap-24">
+        <div className="grid w-full items-center gap-10 lg:items-start lg:grid-cols-[1fr_420px] lg:gap-24">
           {/* Robot and brand — pinned to the top of the panel on desktop */}
-          <section className="order-2 flex min-h-[430px] flex-col items-center justify-center lg:order-1 lg:min-h-[620px] lg:justify-start lg:pt-10">
+          <section className="order-2 flex min-h-[430px] flex-col items-center justify-center lg:order-1 lg:min-h-[620px] lg:justify-start lg:pt-0">
             <div className="relative flex w-full max-w-[560px] flex-col items-center">
               {/* Atmosphere rings — centered on the robot */}
               <div className="ed-robot-halo absolute top-1/2 h-[310px] w-[310px] -translate-y-1/2 rounded-full sm:h-[400px] sm:w-[400px]" />
