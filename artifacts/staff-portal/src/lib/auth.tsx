@@ -6,6 +6,8 @@ export interface AuthUser {
   full_name: string;
   email: string;
   is_system_admin: boolean;
+  /** Primary department this user belongs to — null if unassigned */
+  department_id: number | null;
   roles: string[];
   /** "module.action" strings, e.g. ["documents.read", "users.create"] */
   permissions: string[];
@@ -23,9 +25,6 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | null>(null);
 
 async function apiFetch(path: string, init?: RequestInit) {
-  const base = (import.meta.env.BASE_URL ?? '/').replace(/\/$/, '');
-  // The API is reachable at /api relative to the Replit domain root.
-  // When BASE_URL is e.g. "/staff-portal", strip it so we always hit /api.
   const origin = window.location.origin;
   const res = await fetch(`${origin}/api${path}`, {
     credentials: 'include',

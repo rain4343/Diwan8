@@ -5,7 +5,7 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 import { db, usersTable, rolesTable, roleUserTable, departmentsTable } from "@workspace/db";
-import { requirePermission, requireSystemAdmin } from "../middleware/requireAuth";
+import { requirePermission, requireSystemAdmin, hasPermission } from "../middleware/requireAuth";
 import {
   CreateUserBody,
   UpdateUserBody,
@@ -222,12 +222,33 @@ router.patch("/users/:id", async (req, res) => {
   if (!paramParsed.success) return res.status(400).json({ error: "Invalid user ID" });
   const { id } = paramParsed.data;
 
-  // Users may update their own basic profile fields (name/email/phone/password
-  // via the Profile page); only the system administrator may edit other users
-  // or change role/department assignments.
   const isSelf = req.session?.userId === id;
   const isSystemAdmin = !!req.session?.isSystemAdmin;
-  if (!isSelf && !isSystemAdmin) {
+
+  // Fetch target user's department so we can check same-dept edit eligibility
+  const [targetUser] = await db
+    .select({ department_id: usersTable.department_id })
+    .from(usersTable)
+    .where(eq(usersTable.id, id))
+    .limit(1);
+  if (!targetUser) return res.status(404).json({ error: "User not found" });
+
+  // Determine if the editor is a department manager who can edit same-dept employees.
+  // Requires the users.update permission AND the target must share the same department.
+  const editorDeptId = req.session?.departmentId ?? null;
+  const isSameDeptEdit =
+    !isSelf &&
+    !isSystemAdmin &&
+    editorDeptId !== null &&
+    targetUser.department_id === editorDeptId;
+
+  if (isSameDeptEdit) {
+    // Verify they actually hold the users.update permission before allowing the edit
+    const allowed = await hasPermission(req.session!.userId, "users", "update");
+    if (!allowed) {
+      return res.status(403).json({ error: "تەنها بەڕێوەبەری سیستم دەسەڵاتی دەستکاریکردنی ئەم فەرمانبەرەی هەیە" });
+    }
+  } else if (!isSelf && !isSystemAdmin) {
     return res.status(403).json({ error: "تەنها بەڕێوەبەری سیستم دەسەڵاتی دەستکاریکردنی ئەم فەرمانبەرەی هەیە" });
   }
 
@@ -235,6 +256,7 @@ router.patch("/users/:id", async (req, res) => {
   if (!parsed.success) return res.status(400).json({ error: "Invalid input" });
 
   const { role_ids, department_id, ...userData } = parsed.data;
+  // Only system admins may change role/department assignments
   if ((role_ids !== undefined || department_id !== undefined) && !isSystemAdmin) {
     return res.status(403).json({ error: "تەنها بەڕێوەبەری سیستم دەسەڵاتی گۆڕینی ڕۆڵ و هۆبەی هەیە" });
   }
@@ -248,7 +270,7 @@ router.patch("/users/:id", async (req, res) => {
   }
 
   const [exists] = await db.select({ id: usersTable.id }).from(usersTable).where(eq(usersTable.id, id)).limit(1);
-  if (!exists) return res.status(404).json({ error: "User not found" });
+  if (!exists) return res.status(404).json({ error: "User not found" }); // targetUser check above already handles this
 
   if (userData.password) {
     userData.password = await bcrypt.hash(userData.password, 10);

@@ -75,6 +75,7 @@ router.post("/auth/login", async (req, res) => {
     req.session.full_name = user.full_name;
     req.session.email = user.email;
     req.session.isSystemAdmin = user.is_system_admin;
+    req.session.departmentId = user.department_id ?? null;
 
     req.session.save(async (saveErr) => {
       if (saveErr) {
@@ -93,6 +94,7 @@ router.post("/auth/login", async (req, res) => {
         full_name: user.full_name,
         email: user.email,
         is_system_admin: user.is_system_admin,
+        department_id: user.department_id ?? null,
         roles,
          permissions,
       });
@@ -114,16 +116,26 @@ router.get("/auth/me", async (req, res) => {
     res.status(401).json({ error: "داخڵ نەبووی" });
     return;
   }
+
+  // Re-fetch department_id in case it changed since login
+  const [user] = await db
+    .select({ department_id: usersTable.department_id })
+    .from(usersTable)
+    .where(eq(usersTable.id, req.session.userId))
+    .limit(1);
+
   const [roles, permissions] = await Promise.all([
     getUserRoleNames(req.session.userId),
     getUserPermissions(req.session.userId),
   ]);
+
   res.json({
     id: req.session.userId,
     username: req.session.username,
     full_name: req.session.full_name,
     email: req.session.email,
     is_system_admin: !!req.session.isSystemAdmin,
+    department_id: user?.department_id ?? null,
     roles,
     permissions,
   });

@@ -15,6 +15,8 @@ declare module "express-session" {
     full_name: string;
     email: string;
     isSystemAdmin: boolean;
+    /** Primary department the user belongs to — null for users with no department assignment */
+    departmentId: number | null;
   }
 }
 

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { eq, ilike, and, desc, type SQL } from "drizzle-orm";
+import { eq, ilike, and, or, desc, type SQL } from "drizzle-orm";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
@@ -592,6 +592,38 @@ async function getDocumentWithCreator(id: number) {
   return doc;
 }
 
+// ── Department isolation helpers ──────────────────────────────
+
+/**
+ * Returns true if the current session user may access the given document.
+ * System admins always pass. Regular users only see documents where their
+ * department is either the sender (from_dept_id) or the recipient (to_dept_id).
+ */
+function userCanReadDoc(
+  isAdmin: boolean,
+  userDeptId: number | null | undefined,
+  doc: { from_dept_id: number | null; to_dept_id: number | null; creator_dept_id?: number | null },
+): boolean {
+  if (isAdmin) return true;
+  if (!userDeptId) return false;
+  return doc.from_dept_id === userDeptId || doc.to_dept_id === userDeptId;
+}
+
+/**
+ * Returns true if the current session user may write/modify the given document.
+ * Write access is limited to the document's sender department (from_dept_id).
+ * System admins always pass.
+ */
+function userCanWriteDoc(
+  isAdmin: boolean,
+  userDeptId: number | null | undefined,
+  doc: { from_dept_id: number | null },
+): boolean {
+  if (isAdmin) return true;
+  if (!userDeptId) return false;
+  return doc.from_dept_id === userDeptId;
+}
+
 // ── Routes ────────────────────────────────────────────────────
 
 // GET /documents/next-number
@@ -618,10 +650,27 @@ router.get("/documents", requirePermission("documents", "read"), async (req, res
   if (!parsed.success) return res.status(400).json({ error: "Invalid query parameters" });
   const { search, status, direction } = parsed.data;
 
+  const isAdmin = !!req.session?.isSystemAdmin;
+  const userDeptId = req.session?.departmentId ?? null;
+
   const conditions: SQL[] = [];
   if (search) conditions.push(ilike(documentsTable.subject, `%${search}%`));
   if (status) conditions.push(eq(documentsTable.current_status, status));
   if (direction) conditions.push(eq(documentsTable.direction, direction));
+
+  // Department isolation: non-admins only see documents that belong to their department
+  if (!isAdmin) {
+    if (!userDeptId) {
+      // User has no department — they see nothing
+      return res.json([]);
+    }
+    conditions.push(
+      or(
+        eq(documentsTable.from_dept_id, userDeptId),
+        eq(documentsTable.to_dept_id, userDeptId),
+      )!,
+    );
+  }
 
   const rows = await db
     .select({
@@ -633,6 +682,8 @@ router.get("/documents", requirePermission("documents", "read"), async (req, res
       creator_name: usersTable.full_name,
       current_status: documentsTable.current_status,
       direction: documentsTable.direction,
+      from_dept_id: documentsTable.from_dept_id,
+      to_dept_id: documentsTable.to_dept_id,
       file_path: documentsTable.file_path,
       created_at: documentsTable.created_at,
       updated_at: documentsTable.updated_at,
@@ -677,6 +728,10 @@ router.post("/documents", requirePermission("documents", "create"), upload.singl
     return res.status(400).json({ error: "Invalid document_date format" });
   }
 
+  // Stamp the document's sender department from the session so it belongs to
+  // the creator's department from the moment it is created.
+  const creatorDeptId = req.session?.departmentId ?? null;
+
   const [doc] = await db
     .insert(documentsTable)
     .values({
@@ -687,6 +742,7 @@ router.post("/documents", requirePermission("documents", "create"), upload.singl
       creator_id: creatorId,
       current_status: current_status?.trim() || "نوێ",
       direction: docDirection,
+      from_dept_id: creatorDeptId,
     })
     .returning();
 
@@ -706,8 +762,23 @@ router.get("/documents/:id", requirePermission("documents", "read"), async (req,
   const parsed = GetDocumentParams.safeParse(req.params);
   if (!parsed.success) return res.status(400).json({ error: "Invalid document ID" });
 
+  const [row] = await db
+    .select({
+      id: documentsTable.id,
+      from_dept_id: documentsTable.from_dept_id,
+      to_dept_id: documentsTable.to_dept_id,
+    })
+    .from(documentsTable)
+    .where(eq(documentsTable.id, parsed.data.id))
+    .limit(1);
+
+  if (!row) return res.status(404).json({ error: "Document not found" });
+
+  if (!userCanReadDoc(!!req.session?.isSystemAdmin, req.session?.departmentId, row)) {
+    return res.status(403).json({ error: "ئەم نوسراوە بەدەستناکەوێت — تەنها نوسراوەکانی هۆبەی خۆت دەبینیت" });
+  }
+
   const doc = await getDocumentWithCreator(parsed.data.id);
-  if (!doc) return res.status(404).json({ error: "Document not found" });
   return res.json(doc);
 });
 
@@ -778,6 +849,7 @@ router.post("/documents/:id/forward", requirePermission("documents", "update"), 
       file_path: documentsTable.file_path,
       document_number: documentsTable.document_number,
       subject: documentsTable.subject,
+      from_dept_id: documentsTable.from_dept_id,
     }).from(documentsTable).where(eq(documentsTable.id, docId)).limit(1),
     db.select({ id: departmentsTable.id, name: departmentsTable.name })
       .from(departmentsTable).where(eq(departmentsTable.id, parsed.data.department_id)).limit(1),
@@ -787,6 +859,11 @@ router.post("/documents/:id/forward", requirePermission("documents", "update"), 
 
   if (!existing) return res.status(404).json({ error: "Document not found" });
   if (!department) return res.status(400).json({ error: "Department not found" });
+
+  // Department write isolation: only the sender department may forward a document
+  if (!userCanWriteDoc(!!req.session?.isSystemAdmin, req.session?.departmentId, existing)) {
+    return res.status(403).json({ error: "تەنها هۆبەی ناردەکەی نوسراو دەتوانێت ئاڕاستەی بکات" });
+  }
 
   const newStatus = `ئاڕاستەکرا بۆ: ${department.name}`;
   const notes = parsed.data.notes || null;
@@ -862,11 +939,16 @@ router.patch("/documents/:id", requirePermission("documents", "update"), async (
   if (!parsed.success) return res.status(400).json({ error: "Invalid input" });
 
   const [exists] = await db
-    .select({ id: documentsTable.id, current_status: documentsTable.current_status })
+    .select({ id: documentsTable.id, current_status: documentsTable.current_status, from_dept_id: documentsTable.from_dept_id })
     .from(documentsTable)
     .where(eq(documentsTable.id, paramParsed.data.id))
     .limit(1);
   if (!exists) return res.status(404).json({ error: "Document not found" });
+
+  // Department write isolation: only the sender department may modify a document
+  if (!userCanWriteDoc(!!req.session?.isSystemAdmin, req.session?.departmentId, exists)) {
+    return res.status(403).json({ error: "تەنها هۆبەی ناردەکەی نوسراو دەتوانێت دەستکاریی بکات" });
+  }
 
   if (parsed.data.document_number) {
     const [dup] = await db
@@ -914,11 +996,19 @@ router.delete("/documents/:id", requirePermission("documents", "delete"), async 
   const parsed = DeleteDocumentParams.safeParse(req.params);
   if (!parsed.success) return res.status(400).json({ error: "Invalid document ID" });
 
-  const [doc] = await db
-    .delete(documentsTable)
+  // Fetch first to enforce department isolation before deleting
+  const [existing] = await db
+    .select({ id: documentsTable.id, from_dept_id: documentsTable.from_dept_id })
+    .from(documentsTable)
     .where(eq(documentsTable.id, parsed.data.id))
-    .returning();
-  if (!doc) return res.status(404).json({ error: "Document not found" });
+    .limit(1);
+  if (!existing) return res.status(404).json({ error: "Document not found" });
+
+  if (!userCanWriteDoc(!!req.session?.isSystemAdmin, req.session?.departmentId, existing)) {
+    return res.status(403).json({ error: "تەنها هۆبەی ناردەکەی نوسراو دەتوانێت بیسڕێتەوە" });
+  }
+
+  await db.delete(documentsTable).where(eq(documentsTable.id, parsed.data.id));
   return res.status(204).send();
 });
 
