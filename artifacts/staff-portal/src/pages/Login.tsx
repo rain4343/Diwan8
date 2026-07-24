@@ -49,27 +49,26 @@ export default function Login() {
               <div className="ed-robot-halo absolute top-1/2 h-[310px] w-[310px] -translate-y-1/2 rounded-full sm:h-[400px] sm:w-[400px]" />
               <div className="ed-robot-orbit absolute top-1/2 h-[285px] w-[285px] -translate-y-1/2 rounded-full sm:h-[370px] sm:w-[370px]" />
 
-              {/* Robot + logo-on-chest composite */}
-              <div className="relative z-10">
-                <div className="absolute inset-8 rounded-full bg-[#38d6bd]/20 blur-3xl" />
-                <RobotMascot variant="login" size="lg" animate />
+              {/* Official logo above the robot */}
+              <div className="relative z-10 flex flex-col items-center">
+                <div className="ed-login-brand-logo flex h-32 w-32 items-center justify-center rounded-[34px] p-3.5 sm:h-36 sm:w-36 sm:p-4">
+                  <img
+                    src={`${import.meta.env.BASE_URL}logo.png`}
+                    alt="لۆگۆی بەڕێوەبەرایەتی پەروەردەی شاربازێڕ"
+                    className="h-full w-full object-contain"
+                  />
+                </div>
+                <div className="relative mt-1">
+                  <div className="absolute inset-8 rounded-full bg-[#38d6bd]/20 blur-3xl" />
+                  <RobotMascot variant="login" size="lg" animate />
+                </div>
               </div>
             </div>
 
             <div className="mt-8 text-center" style={ku}>
-              <div className="ed-login-brand-logo mx-auto mb-5 flex h-24 w-24 items-center justify-center rounded-[28px] p-3 sm:h-28 sm:w-28">
-                <img
-                  src={`${import.meta.env.BASE_URL}logo.png`}
-                  alt="لۆگۆی بەڕێوەبەرایەتی پەروەردەی شاربازێڕ"
-                  className="h-full w-full object-contain"
-                />
-              </div>
-              <p className="text-[11px] font-bold tracking-[0.22em] text-[#e8bd62]" style={{ direction: "ltr" }}>
+              <p className="text-[12px] font-extrabold tracking-[0.24em] text-[#f5d681]" style={{ direction: "ltr" }}>
                 E-DIWAN
               </p>
-              <h1 className="ed-login-brand-title mt-3 text-2xl font-extrabold leading-[1.7] text-[#f8fbf4] sm:text-3xl">
-                سیستەمی بەڕێوەبردنی پەروەردەی شاربازێڕ
-              </h1>
             </div>
           </section>
 
@@ -89,7 +88,7 @@ export default function Login() {
                 <p className="mb-3 text-[10px] font-bold tracking-[0.2em] text-[#e8bd62]" style={{ direction: "ltr" }}>
                   E-DIWAN PORTAL
                 </p>
-                <h2 className="text-3xl font-extrabold text-[#f5f2ea]">
+                <h2 className="text-3xl font-extrabold text-[#ffffff]">
                   چوونەژوورەوە
                 </h2>
               </div>
@@ -108,7 +107,7 @@ export default function Login() {
                 <div>
                   <label
                     htmlFor="login-username"
-                    className="mb-2 block text-sm font-extrabold text-[#c6d2cf]"
+                    className="mb-2 block text-sm font-extrabold text-[#f0faf6]"
                     style={ku}
                   >
                     ناوی بەکارهێنەر
@@ -136,7 +135,7 @@ export default function Login() {
                 <div>
                   <label
                     htmlFor="login-password"
-                    className="mb-2 block text-sm font-extrabold text-[#c6d2cf]"
+                    className="mb-2 block text-sm font-extrabold text-[#f0faf6]"
                     style={ku}
                   >
                     ووشەی نهێنی
@@ -183,13 +182,13 @@ export default function Login() {
               </form>
 
               <div className="mt-7 border-t border-white/[0.08] pt-5 text-center" style={ku}>
-                <p className="text-[10px] text-[#789296]">
+                <p className="text-[10px] font-bold text-[#b4cfca]">
                   سیستەمی بەڕێوەبەرێتی پەروەردەی شارباژێڕ
                 </p>
               </div>
             </div>
 
-            <p className="mt-5 text-center text-[10px] text-[#627b80]" style={{ direction: "ltr" }}>
+            <p className="mt-5 text-center text-[10px] font-bold text-[#a9c1bd]" style={{ direction: "ltr" }}>
               Ahmad Samad © 2026
             </p>
           </section>

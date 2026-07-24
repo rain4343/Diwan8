@@ -368,18 +368,11 @@ html[data-theme="light"] .dashboard-handoff-document {
 
 .ed-login-brand-logo {
   background: linear-gradient(145deg, rgba(255, 255, 255, 0.16), rgba(66, 198, 177, 0.1));
-  border: 1px solid rgba(232, 189, 98, 0.42);
+  border: 1px solid rgba(245, 214, 129, 0.56);
   box-shadow:
-    0 0 0 8px rgba(232, 189, 98, 0.045),
-    0 16px 42px rgba(0, 0, 0, 0.24),
-    0 0 34px rgba(66, 198, 177, 0.12);
-}
-
-.ed-login-brand-title {
-  max-width: 34rem;
-  margin-inline: auto;
-  text-wrap: balance;
-  text-shadow: 0 4px 24px rgba(0, 0, 0, 0.24);
+    0 0 0 9px rgba(245, 214, 129, 0.06),
+    0 18px 46px rgba(0, 0, 0, 0.24),
+    0 0 42px rgba(66, 198, 177, 0.18);
 }
 
 .ed-logo-mark {
@@ -422,7 +415,7 @@ html[data-theme="light"] .dashboard-handoff-document {
 }
 
 .ed-login-input::placeholder {
-  color: rgba(145, 169, 171, 0.58);
+  color: rgba(205, 226, 221, 0.7);
 }
 
 .ed-login-button {
