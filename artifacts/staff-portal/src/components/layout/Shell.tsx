@@ -152,7 +152,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
       <div className="relative px-4 pt-5 pb-4 flex-shrink-0">
         <div className="flex items-center gap-3">
           <div
-            className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 p-0.5"
+            className="w-16 h-16 rounded-xl flex items-center justify-center shrink-0 p-0.5"
             style={{
               background: "rgba(255,255,255,0.05)",
               border: "1px solid rgba(255,255,255,0.1)",
@@ -167,13 +167,13 @@ export function Shell({ children }: { children: React.ReactNode }) {
           </div>
           <div>
             <h2
-              className="text-sm font-extrabold leading-tight"
+              className="text-base font-extrabold leading-tight"
               style={{ ...ku, color: "#34d399" }}
             >
               ب.پ.شارباژێڕ
             </h2>
             <p
-              className="text-xs font-bold mt-0.5 tracking-wider"
+              className="text-sm font-bold mt-0.5 tracking-wider"
               style={{ ...ku, color: "#60a5fa" }}
             >
               E-Diwan
