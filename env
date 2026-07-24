@@ -1,0 +1,1 @@
+Add-Content -Path ".env" -Value "DATABASE_URL=postgresql://postgres:R%40in%40%23%40%234343@localhost:5432/A3"

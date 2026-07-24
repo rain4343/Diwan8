@@ -1,0 +1,153 @@
+@extends('layouts.admin')
+
+@section('title', 'ئیمزاکردنی نوسراو: ' . $document->subject)
+
+@push('styles')
+<style>
+    #pdf-container {
+        position: relative;
+        width: 800px; /* Panayî pêşniyarkraw */
+        height: 1131px; /* Berzî pêşniyarkraw bo A4 */
+        background-image: url("{{ asset('path/to/pdf-preview.jpg') }}"); /* Pêwîste lere background imageî PDFeke daneyt */
+        background-size: contain;
+        border: 1px solid #ccc;
+        margin: auto;
+    }
+    .draggable {
+        position: absolute;
+        padding: 5px;
+        border: 1px dashed #0d6efd;
+        touch-action: none;
+        box-sizing: border-box;
+        cursor: move;
+    }
+    .draggable img {
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+    }
+    .resizable-textarea {
+        width: 100%;
+        height: 100%;
+        border: none;
+        resize: none;
+        background: transparent;
+        font-family: 'Noto Kufi Arabic', sans-serif;
+    }
+</style>
+@endpush
+
+@section('content')
+    <h2 class="h3 mb-4">ئیمزاکردن و هامش نووسین</h2>
+    <p class="text-muted">توخمەکان بجوڵێنە بۆ شوێنی گونجاو، پاشان پاشەکەوتی بکە.</p>
+
+    <!-- PDF Viewer Area -->
+    <div id="pdf-container">
+        <!-- Signature -->
+        @if(auth()->user()->signature_image)
+        <div id="signature-box" class="draggable" style="width: 150px; height: 75px; top: 50px; left: 50px;">
+            <img src="{{ asset('storage/' . auth()->user()->signature_image) }}" alt="Signature">
+        </div>
+        @endif
+
+        <!-- Notes (Hamsh) -->
+        <div id="notes-box" class="draggable" style="width: 250px; height: 100px; top: 150px; left: 50px;">
+            <textarea id="notes-text" class="resizable-textarea" placeholder="هامش لێرە بنووسە..."></textarea>
+        </div>
+
+        <!-- Date -->
+        <div id="date-box" class="draggable" style="top: 280px; left: 50px;">
+            <span>{{ now()->toDateString() }}</span>
+        </div>
+    </div>
+
+    <!-- Hidden Form for submission -->
+    <form id="signature-form" action="{{-- route('admin.documents.sign', $document->id) --}}" method="POST" class="mt-4 text-center">
+        @csrf
+        <input type="hidden" name="signature_x" id="signature_x">
+        <input type="hidden" name="signature_y" id="signature_y">
+        
+        <input type="hidden" name="notes_x" id="notes_x">
+        <input type="hidden" name="notes_y" id="notes_y">
+        <input type="hidden" name="notes_width" id="notes_width">
+        <input type="hidden" name="notes_height" id="notes_height">
+        <input type="hidden" name="notes_text" id="notes_text_hidden">
+
+        <input type="hidden" name="date_x" id="date_x">
+        <input type="hidden" name="date_y" id="date_y">
+
+        <button type="submit" class="btn btn-primary btn-lg">پاشەکەوتکردنی ئیمزا و هامش</button>
+    </form>
+@endsection
+
+@push('scripts')
+<script>
+    function dragMoveListener(event) {
+        var target = event.target;
+        var x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
+        var y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
+
+        target.style.transform = 'translate(' + x + 'px, ' + y + 'px)';
+        target.setAttribute('data-x', x);
+        target.setAttribute('data-y', y);
+    }
+
+    interact('.draggable').draggable({
+        listeners: { move: dragMoveListener },
+        inertia: true,
+        modifiers: [
+            interact.modifiers.restrictRect({
+                restriction: 'parent',
+                endOnly: true
+            })
+        ]
+    }).resizable({
+        edges: { left: true, right: true, bottom: true, top: true },
+        listeners: {
+            move (event) {
+                var target = event.target
+                var x = (parseFloat(target.getAttribute('data-x')) || 0)
+                var y = (parseFloat(target.getAttribute('data-y')) || 0)
+
+                target.style.width = event.rect.width + 'px'
+                target.style.height = event.rect.height + 'px'
+
+                x += event.deltaRect.left
+                y += event.deltaRect.top
+
+                target.style.transform = 'translate(' + x + 'px,' + y + 'px)'
+                target.setAttribute('data-x', x)
+                target.setAttribute('data-y', y)
+            }
+        },
+        modifiers: [
+            interact.modifiers.restrictSize({
+                min: { width: 100, height: 50 }
+            })
+        ],
+        inertia: true
+    });
+
+    document.getElementById('signature-form').addEventListener('submit', function(e) {
+        // Signature
+        const sigBox = document.getElementById('signature-box');
+        if (sigBox) {
+            document.getElementById('signature_x').value = sigBox.offsetLeft + (parseFloat(sigBox.getAttribute('data-x')) || 0);
+            document.getElementById('signature_y').value = sigBox.offsetTop + (parseFloat(sigBox.getAttribute('data-y')) || 0);
+        }
+
+        // Notes
+        const notesBox = document.getElementById('notes-box');
+        document.getElementById('notes_x').value = notesBox.offsetLeft + (parseFloat(notesBox.getAttribute('data-x')) || 0);
+        document.getElementById('notes_y').value = notesBox.offsetTop + (parseFloat(notesBox.getAttribute('data-y')) || 0);
+        document.getElementById('notes_width').value = notesBox.offsetWidth;
+        document.getElementById('notes_height').value = notesBox.offsetHeight;
+        document.getElementById('notes_text_hidden').value = document.getElementById('notes-text').value;
+
+        // Date
+        const dateBox = document.getElementById('date-box');
+        document.getElementById('date_x').value = dateBox.offsetLeft + (parseFloat(dateBox.getAttribute('data-x')) || 0);
+        document.getElementById('date_y').value = dateBox.offsetTop + (parseFloat(dateBox.getAttribute('data-y')) || 0);
+    });
+</script>
+@endpush

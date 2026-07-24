@@ -1,0 +1,98 @@
+import React, { useState, useEffect } from 'react';
+
+interface DocumentReport {
+  id: string;
+  documentNumber: string;
+  title: string;
+  type: 'incoming' | 'outgoing';
+  date: string;
+  senderOrReceiver: string;
+  status: string;
+}
+
+export const Reports: React.FC = () => {
+  const [reportType, setReportType] = useState<'incoming' | 'outgoing'>('incoming');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const [reports, setReports] = useState<DocumentReport[]>([]);
+
+  const fetchReports = async () => {
+    // لێرەدا پەیوەندی بە باکئەندەوە دەکەین بۆ هێنانی داتاکان
+    const response = await fetch(`/api/reports?type=${reportType}&startDate=${startDate}&endDate=${endDate}`);
+    const data = await response.json();
+    setReports(data);
+  };
+
+  return (
+    <div className="p-6 text-right" dir="rtl">
+      <h2 className="text-2xl font-bold mb-6 text-gray-800">📊 سیستمی ڕاپۆرتەکان</h2>
+      
+      {/* دوگمەکانی دیاریکردنی جۆری ڕاپۆرت */}
+      <div className="flex gap-4 mb-6">
+        <button 
+          onClick={() => setReportType('incoming')}
+          className={`px-4 py-2 rounded-lg font-medium transition-colors ${reportType === 'incoming' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'}`}
+        >
+          📥 ڕاپۆرتی نووسراوی هاتوو
+        </button>
+        <button 
+          onClick={() => setReportType('outgoing')}
+          className={`px-4 py-2 rounded-lg font-medium transition-colors ${reportType === 'outgoing' ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-700'}`}
+        >
+          📤 ڕاپۆرتی نووسراوی ڕۆشتوو
+        </button>
+      </div>
+
+      {/* فلتەری ڕێکەوت */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 bg-gray-50 p-4 rounded-xl">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">لە ڕێکەوتی:</label>
+          <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="w-full border rounded-lg p-2 text-right" />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">تا ڕێکەوتی:</label>
+          <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="w-full border rounded-lg p-2 text-right" />
+        </div>
+        <div className="flex items-end">
+          <button onClick={fetchReports} className="w-full bg-indigo-600 text-white p-2 rounded-lg font-medium hover:bg-indigo-700">
+            🔍 دروستکردنی ڕاپۆرت
+          </button>
+        </div>
+      </div>
+
+      {/* خشتەی پیشاندانی ڕاپۆرتەکە */}
+      <div className="overflow-x-auto bg-white shadow-md rounded-xl">
+        <table className="w-full text-sm text-right text-gray-500">
+          <thead className="text-xs text-gray-700 uppercase bg-gray-100">
+            <tr>
+              <th className="px-6 py-3">ژمارەی نووسراو</th>
+              <th className="px-6 py-3">ناونیشانی نووسراو</th>
+              <th className="px-6 py-3">{reportType === 'incoming' ? 'ناردەر (لەکێوە هاتووە)' : 'وەرگر (بۆ کوێ ڕۆشتووە)'}</th>
+              <th className="px-6 py-3">ڕێکەوت</th>
+              <th className="px-6 py-3">دۆخ</th>
+            </tr>
+          </thead>
+          <tbody>
+            {reports.length > 0 ? reports.map((doc) => (
+              <tr key={doc.id} className="border-b hover:bg-gray-50">
+                <td className="px-6 py-4 font-medium text-gray-900">{doc.documentNumber}</td>
+                <td className="px-6 py-4">{doc.title}</td>
+                <td className="px-6 py-4">{doc.senderOrReceiver}</td>
+                <td className="px-6 py-4">{doc.date}</td>
+                <td className="px-6 py-4">
+                  <span className={`px-2 py-1 rounded text-xs ${doc.status === 'تەواوبووە' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                    {doc.status}
+                  </span>
+                </td>
+              </tr>
+            )) : (
+              <tr>
+                <td colSpan={5} className="text-center py-8 text-gray-400">هیچ داتایەک نەدۆزرایەوە، فلتەرەکە دیاری بکە و دوگمەی گەڕان لێبدە.</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+};

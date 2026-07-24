@@ -1,0 +1,100 @@
+E-Rekar — Architecture & Implementation Plan  |  بەرنامەی بەڕێوەبردنی بەڕێوەبەرایەتی پەروەردە     📦  Existing Database Schema 🆕  New Tables Required ⚙️  System Modules 🔌  New API Routes users id · username (unique) · full_name · email (unique)
+password · department_id → departments
+phone · avatar_image · signature_image
+is_system_admin (bool) · created_at · updated_at departments  (19 هۆبە) id · name (unique) · created_at · updated_at roles  +  role_user (junction) roles: id · name (unique)
+role_user: user_id → users · role_id → roles documents id · document_number (unique) · document_date
+subject · creator_id → users
+current_status · direction (هاتوو/دەرچووی)
+file_path · created_at · updated_at document_logs  →  will expand to audit_logs id · document_id → documents
+user_id → users · action · notes · timestamp chat_messages id · sender_id → users · receiver_id → users
+content · is_read · created_at document_workflow_steps  🆕 id · document_id → documents
+step: ENUM(draft|sent|received|
+  review|assigned|completed|rejected)
+from_dept_id · to_dept_id → departments
+assigned_to_user_id → users
+notes · created_by · created_at document_assignments  🆕 id · document_id → documents
+assigned_to → users · assigned_by → users
+department_id → departments
+due_date · priority(low|normal|high|urgent)
+status · notes · created_at cases  +  case_documents  🆕 cases: id · case_number · title · description
+  department_id · created_by · status
+case_documents: case_id → cases
+  document_id → documents
+  added_by → users · added_at deadlines  🆕 id · document_id → documents
+due_date · reminder_date
+is_overdue (bool) · notified_at
+created_by · created_at notifications  🆕 id · user_id → users · type
+title · message · data (JSONB)
+is_read (bool) · created_at audit_logs  🆕  (replaces doc_logs) id · user_id → users
+action (e.g. CREATE_DOC, CHANGE_STATUS)
+entity_type · entity_id
+old_value (JSONB) · new_value (JSONB)
+ip_address · created_at permissions  +  role_permissions  🆕 permissions: id · name · description
+  module(docs|users|depts|reports|admin)
+  action(create|read|update|delete)
+role_permissions: role_id → roles
+  permission_id → permissions document_tags  🆕 id · document_id → documents
+tag · created_by · created_at document_comments  🆕 id · document_id → documents
+user_id → users · content
+parent_id (self-ref, for threads)
+created_at · updated_at reports_config  🆕 id · name · type(doc|dept|overdue|audit)
+filters (JSONB) · created_by → users
+schedule · last_run_at · created_at ① Dashboard — بینینی گشتی KPI cards per department · Activity feed
+Overdue alerts · Pending assignments
+Quick action buttons ② Document Management — بەڕێوەبردنی نوسراو Incoming (هاتوو) & Outgoing (دەرچووی)
+Workflow state machine · PDF preview/sign
+Timeline view · Assign to dept/user
+Comments & annotations ③ Case Management — بەڕێوەبردنی پرونده Group documents by topic/case
+Case history · Cross-dept cases
+Full case timeline ④ Deadlines & Overdue — دواخرانەکان Set due date per document
+Auto-flag overdue · Email/in-app reminders
+Overdue dashboard widget ⑤ Advanced Search — گەڕانی پێشکەوتوو By doc number · dept · subject · date range
+By sender · status · tag
+Full-text search across all fields ⑥ Reports & Audit — ڕاپۆرت و تۆماری کردار Per-dept document stats · Overdue report
+Audit log: who / when / what
+CSV & PDF export · Scheduled reports ⑦ Notifications — ئاگادارکردنەوە (Socket.IO) Real-time via existing Socket.IO
+New assignment · status change · deadline
+In-app bell + notification list /api/documents
+  GET / ?dept&status&date&search&tag
+  POST / · GET /:id
+  PATCH /:id/status
+  POST /:id/workflow  ← state transitions
+  GET /:id/timeline · POST /:id/assign
+  POST /:id/comment · DELETE /:id /api/cases
+  GET / · POST / · GET /:id
+  PATCH /:id · DELETE /:id
+  POST /:id/documents · DELETE /:id/documents/:docId /api/deadlines
+  GET /overdue  · POST /  · PATCH /:id
+  DELETE /:id /api/notifications
+  GET /mine · PATCH /:id/read
+  POST /mark-all-read /api/audit-logs  (admin only)
+  GET / ?entity&user&action&date
+  GET /export (CSV) /api/reports
+  GET /documents · GET /departments
+  GET /overdue · GET /export /api/search  GET / ?q&type&dept&date /api/permissions  (system admin)
+  GET / · POST / · PATCH /:id
+  POST /roles/:roleId/assign /api/backup  GET /status · POST /trigger (admin)   📄  Document Workflow State Machine — Workflow نوسراوەکان 🔐  Role & Permission Matrix — ڕۆڵ و مۆڵەتەکان ① DRAFT
+پێشنووس ② SENT
+نێردراو ③ RECEIVED
+وەرگیراو ④ REVIEW
+لێکۆڵینەوە ⑤ ASSIGNED
+سپاردراو ⑥ COMPLETED
+تەواوبوو ✗ REJECTED
+ڕەتکراوە       Creator (کردەوەکەر)
+دروستی دەکات و دەینێرێت
+له هۆبەکەدا Receiving Dept
+وەرگرتن تۆماردەکات
+و دەیگەڕێنێت بۆ ئەندامیش Dept Manager
+دەسپێرێت بەسەر
+کارمەندان Assigned Staff
+کارەکەی تەواودەکات
+و تۆمارەکەی داخستن ⏱ TIMELINE: هەر گۆڕانکارییەک لە workflow_steps تۆمارەکردەکرێت — document_id · step · from/to_dept · assigned_to · created_by · timestamp. ئەمەش بەرپرسایەتیی پڕ و دیاریە. 📁 CASE/FILE: نوسراوی پەیوەندیدار (بۆ یەک بابەت) دەتوانن لەژێر یەک case/پرونده کۆببکرێنەوە — case_number · title · related documents list · full history. 💾 BACKUP: pg_dump scheduled via node-cron هەموو ٢٤ کاتژمێرێک — فایلەکان لە /backups/ پاراستراون. ئاگادارکردنەوەی ئیمەیڵ لەکاتی سەرکەوتن/شکست. Module / Action  →  System Admin   |   Dept Manager   |   Staff Member Documents (نوسراو)
+  Create/Read/Update/Delete · Workflow advance · Sign
+  ✅ Full  |  ✅ Own dept + advance  |  🔵 Read + advance assigned Users & Roles (بەکارهێنەران)
+  ✅ Full CRUD + assign roles  |  🔵 View own dept users  |  ❌ No access Departments (هۆبەکان)
+  ✅ Full CRUD  |  🔵 View own dept  |  🔵 View only Cases / Files (پرونده)
+  ✅ Full  |  ✅ Own dept cases  |  🔵 Assigned cases only Reports & Export (ڕاپۆرت)
+  ✅ All depts + export  |  🔵 Own dept only  |  ❌ No access Audit Log (تۆمارکردن)
+  ✅ Full history + export  |  🔵 Own dept actions  |  ❌ No access Advanced Search (گەڕانی پێشکەوتوو)
+  ✅ All fields  |  🔵 Own dept  |  🔵 Own dept Legend: ✅ Full Access  |  🔵 Partial / Dept-scoped  |  ❌ No Access
+Permissions enforced at API middleware level — each route checks role + permission before executing.

@@ -1,0 +1,12 @@
+.git_old/
+.cursor/
+.cursor-tutor/
+*.bin
+*.pack
+.local/
+.cache/
+node_modules/
+venv/
+.env
+dist/
+build/
