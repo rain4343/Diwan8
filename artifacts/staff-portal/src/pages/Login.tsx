@@ -67,8 +67,8 @@ export default function Login() {
           <p className="text-[11px] font-extrabold tracking-[0.28em] text-[#f5d681]" style={{ direction: "ltr" }}>
             E-DIWAN PORTAL
           </p>
-          <p className="mt-1 text-[12px] font-bold text-[#86d5cb]/70">
-            بەڕێوەبەرایەتی پەروەردەی شارباژێڕ
+          <p className="mt-1 text-[15px] font-extrabold text-[#34d399]">
+            بەڕێوەبەرێتی پەروەردەی شارباژێڕ
           </p>
         </div>
 
