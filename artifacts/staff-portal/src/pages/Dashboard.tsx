@@ -229,9 +229,6 @@ export default function Dashboard() {
               </div>
             </div>
 
-            <p className="mt-3 text-center text-[10px] font-bold tracking-[0.2em]" style={{ color: "rgba(56,211,203,0.6)", direction: "ltr" }}>
-              DOCUMENT HANDOFF
-            </p>
           </div>
         </div>
       </div>
