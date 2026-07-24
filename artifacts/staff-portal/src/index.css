@@ -405,6 +405,39 @@ html[data-theme="light"] .app-main .text-slate-500 {
   color: var(--app-muted-text) !important;
 }
 
+html[data-theme="light"] .app-main {
+  color: #143c48;
+}
+
+html[data-theme="light"] .app-main h1,
+html[data-theme="light"] .app-main h2,
+html[data-theme="light"] .app-main h3,
+html[data-theme="light"] .app-main h4,
+html[data-theme="light"] .app-main h5,
+html[data-theme="light"] .app-main h6,
+html[data-theme="light"] .app-main p,
+html[data-theme="light"] .app-main label,
+html[data-theme="light"] .app-main td,
+html[data-theme="light"] .app-main th {
+  color: #173d49 !important;
+}
+
+html[data-theme="light"] .app-main .text-muted-foreground,
+html[data-theme="light"] .app-main .text-slate-400,
+html[data-theme="light"] .app-main .text-slate-500,
+html[data-theme="light"] .app-main .text-slate-600,
+html[data-theme="light"] .app-main [style*="rgba(148,163,184"],
+html[data-theme="light"] .app-main [style*="rgba(100,116,139"],
+html[data-theme="light"] .app-main [style*="rgba(145,169,171"] {
+  color: #466873 !important;
+}
+
+html[data-theme="light"] .app-main .text-black,
+html[data-theme="light"] .app-main .text-gray-900,
+html[data-theme="light"] .app-main .text-zinc-900 {
+  color: #123945 !important;
+}
+
 html[data-theme="light"] .app-main .bg-slate-950,
 html[data-theme="light"] .app-main .bg-slate-900 {
   background: #ffffff !important;
@@ -457,6 +490,17 @@ html[data-theme="light"] .app-shell .nav-item {
   color: #52727a;
 }
 
+html[data-theme="light"] .app-shell h2,
+html[data-theme="light"] .app-shell p,
+html[data-theme="light"] .app-shell .nav-item span {
+  color: #173d49 !important;
+}
+
+html[data-theme="light"] .app-shell .text-slate-400,
+html[data-theme="light"] .app-shell .text-slate-500 {
+  color: #466873 !important;
+}
+
 html[data-theme="light"] .app-shell [data-testid="button-notifications"] {
   color: #176277 !important;
 }
@@ -486,6 +530,16 @@ html[data-theme="light"] .ed-login .ed-login-input {
 
 html[data-theme="light"] .ed-login .ed-login-input::placeholder {
   color: rgba(54,96,106,0.62);
+}
+
+html[data-theme="light"] .ed-login h2,
+html[data-theme="light"] .ed-login label,
+html[data-theme="light"] .ed-login p.text-\[\#a9c1bd\] {
+  color: #173d49 !important;
+}
+
+html[data-theme="light"] .ed-login .text-white {
+  color: #173d49 !important;
 }
 
 html[data-theme="light"] .ed-login .ed-login-grid {
