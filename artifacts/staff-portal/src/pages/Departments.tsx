@@ -119,10 +119,6 @@ export default function Departments() {
                   دروستکراوە: {format(new Date(dept.created_at), "MMM d, yyyy")}
                 </p>
 
-                {/* Badge */}
-                <span className={`inline-flex items-center mt-3 px-2 py-0.5 rounded-md text-[11px] font-medium border ${deptColors[colorIdx]}`}>
-                  هۆبەی ڕێکخراوەکە
-                </span>
 
                 {/* Actions */}
                 <div className="absolute top-4 left-4 flex gap-1">
