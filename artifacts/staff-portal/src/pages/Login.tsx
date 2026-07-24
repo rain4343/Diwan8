@@ -52,20 +52,24 @@ export default function Login() {
               {/* Robot + logo-on-chest composite */}
               <div className="relative z-10">
                 <div className="absolute inset-8 rounded-full bg-[#38d6bd]/20 blur-3xl" />
-                <RobotMascot variant="login" size="xl" animate />
+                <RobotMascot variant="login" size="lg" animate />
               </div>
             </div>
 
             <div className="mt-8 text-center" style={ku}>
+              <div className="ed-login-brand-logo mx-auto mb-5 flex h-24 w-24 items-center justify-center rounded-[28px] p-3 sm:h-28 sm:w-28">
+                <img
+                  src={`${import.meta.env.BASE_URL}logo.png`}
+                  alt="لۆگۆی بەڕێوەبەرایەتی پەروەردەی شاربازێڕ"
+                  className="h-full w-full object-contain"
+                />
+              </div>
               <p className="text-[11px] font-bold tracking-[0.22em] text-[#e8bd62]" style={{ direction: "ltr" }}>
                 E-DIWAN
               </p>
-              <h1 className="mt-2 text-2xl font-extrabold text-[#f2f0e7] sm:text-3xl">
-                سیستەمی ئی دیوان
+              <h1 className="ed-login-brand-title mt-3 text-2xl font-extrabold leading-[1.7] text-[#f8fbf4] sm:text-3xl">
+                سیستەمی بەڕێوەبردنی پەروەردەی شاربازێڕ
               </h1>
-              <p className="mt-2 text-sm font-medium text-[#91a9ab]">
-                بەڕێوەبردنی پەروەردە
-              </p>
             </div>
           </section>
 
@@ -74,7 +78,7 @@ export default function Login() {
             <div className="ed-login-card rounded-[28px] p-6 sm:p-8">
               <div className="mb-8 text-center" style={ku}>
                 <div className="mb-5 flex justify-center lg:hidden">
-                  <div className="ed-logo-mark flex h-24 w-24 items-center justify-center rounded-[26px] p-3">
+                  <div className="ed-logo-mark flex h-28 w-28 items-center justify-center rounded-[30px] p-3">
                     <img
                       src={`${import.meta.env.BASE_URL}logo.png`}
                       alt="لۆگۆی E-Diwan"
