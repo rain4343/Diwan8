@@ -1,5 +1,16 @@
 import React from "react";
-import { RobotMascot, RobotVariant } from "./RobotMascot";
+import {
+  BarChart3,
+  Building2,
+  CalendarCheck2,
+  FileText,
+  LayoutDashboard,
+  MessageCircle,
+  ShieldCheck,
+  Users,
+  type LucideIcon,
+} from "lucide-react";
+import type { RobotVariant } from "./RobotMascot";
 
 interface SectionHeroProps {
   variant: RobotVariant;
@@ -33,11 +44,24 @@ const ACCENT_COLORS: Record<RobotVariant, string> = {
   login: "#93c5fd",
 };
 
+const SECTION_ICONS: Record<RobotVariant, LucideIcon> = {
+  dashboard: LayoutDashboard,
+  documents: FileText,
+  staff: Users,
+  departments: Building2,
+  reports: BarChart3,
+  leaves: CalendarCheck2,
+  chat: MessageCircle,
+  admin: ShieldCheck,
+  login: LayoutDashboard,
+};
+
 const ku: React.CSSProperties = { fontFamily: "'Noto Kufi Arabic', sans-serif" };
 
 export function SectionHero({ variant, title, subtitle, children }: SectionHeroProps) {
   const glow = GLOW_COLORS[variant];
   const accent = ACCENT_COLORS[variant];
+  const Icon = SECTION_ICONS[variant];
 
   return (
     <div
@@ -64,9 +88,20 @@ export function SectionHero({ variant, title, subtitle, children }: SectionHeroP
       />
 
       <div className="relative flex items-center gap-6 p-5 pr-6" dir="rtl">
-        {/* Robot */}
-        <div className="shrink-0 hidden sm:block">
-          <RobotMascot variant={variant} size="sm" animate />
+        {/* Section icon */}
+        <div
+          className="relative hidden h-14 w-14 shrink-0 items-center justify-center rounded-2xl sm:flex"
+          style={{
+            background: `linear-gradient(145deg, ${glow}, rgba(255,255,255,0.04))`,
+            border: `1px solid ${accent}55`,
+            boxShadow: `0 0 24px ${glow}`,
+          }}
+        >
+          <div
+            className="absolute inset-0 rounded-2xl"
+            style={{ boxShadow: `inset 0 0 18px ${glow}` }}
+          />
+          <Icon className="relative h-7 w-7" strokeWidth={1.8} style={{ color: accent }} />
         </div>
 
         {/* Text */}
@@ -87,13 +122,6 @@ export function SectionHero({ variant, title, subtitle, children }: SectionHeroP
         {/* Optional right-side actions */}
         {children && <div className="shrink-0 flex items-center gap-2">{children}</div>}
 
-        {/* Decorative robot silhouette */}
-        <div
-          className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none opacity-5"
-          style={{ filter: "blur(1px)" }}
-        >
-          <RobotMascot variant={variant} size="lg" animate={false} />
-        </div>
       </div>
     </div>
   );

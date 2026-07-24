@@ -8,7 +8,6 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
 import { hasModuleAccess } from "@/lib/usePermission";
-import { RobotMascot, RobotVariant } from "@/components/robots/RobotMascot";
 import { NotificationBell } from "@/components/NotificationBell";
 
 const ku: React.CSSProperties = { fontFamily: "'Noto Kufi Arabic', sans-serif" };
@@ -43,49 +42,48 @@ interface NavItem {
   href: string;
   accentColor: string;
   glowColor: string;
-  robot: RobotVariant;
   module?: string;
 }
 
 const navItems: NavItem[] = [
   {
     icon: LayoutDashboard, label: "داشبۆرد",    href: "/",
-    accentColor: "#60a5fa", glowColor: "rgba(59,130,246,0.5)",   robot: "dashboard",
+    accentColor: "#60a5fa", glowColor: "rgba(59,130,246,0.5)",
   },
   {
     icon: FileText,        label: "نوسراوەکان", href: "/documents",
-    accentColor: "#fbbf24", glowColor: "rgba(245,158,11,0.5)",  robot: "documents",  module: "documents",
+    accentColor: "#fbbf24", glowColor: "rgba(245,158,11,0.5)", module: "documents",
   },
   {
     icon: Users,           label: "فەرمانبەران",href: "/staff",
-    accentColor: "#22d3ee", glowColor: "rgba(6,182,212,0.5)",    robot: "staff",      module: "users",
+    accentColor: "#22d3ee", glowColor: "rgba(6,182,212,0.5)", module: "users",
   },
   {
     icon: Building2,       label: "هۆبەکان",    href: "/departments",
-    accentColor: "#34d399", glowColor: "rgba(16,185,129,0.5)",   robot: "departments",module: "departments",
+    accentColor: "#34d399", glowColor: "rgba(16,185,129,0.5)", module: "departments",
   },
   {
     icon: BarChart3,       label: "ڕاپۆرتەکان", href: "/reports",
-    accentColor: "#a78bfa", glowColor: "rgba(139,92,246,0.5)",   robot: "reports",    module: "reports",
+    accentColor: "#a78bfa", glowColor: "rgba(139,92,246,0.5)", module: "reports",
   },
   {
     icon: AlarmClock,      label: "مۆڵەتەکان",  href: "/leaves",
-    accentColor: "#6ee7b7", glowColor: "rgba(52,211,153,0.5)",   robot: "leaves",     module: "cases",
+    accentColor: "#6ee7b7", glowColor: "rgba(52,211,153,0.5)", module: "cases",
   },
   {
     icon: MessageCircle,   label: "چات",         href: "/chat",
-    accentColor: "#7dd3fc", glowColor: "rgba(14,165,233,0.5)",   robot: "chat",
+    accentColor: "#7dd3fc", glowColor: "rgba(14,165,233,0.5)",
   },
   {
     icon: UserCircle,      label: "پڕۆفایلی من", href: "/profile",
-    accentColor: "#94a3b8", glowColor: "rgba(148,163,184,0.5)", robot: "dashboard",
+    accentColor: "#94a3b8", glowColor: "rgba(148,163,184,0.5)",
   },
 ];
 
 const adminNavItems: NavItem[] = [
   {
     icon: ShieldCheck, label: "بەڕێوەبەری سیستەم", href: "/admin",
-    accentColor: "#c4b5fd", glowColor: "rgba(139,92,246,0.6)", robot: "admin",
+    accentColor: "#c4b5fd", glowColor: "rgba(139,92,246,0.6)",
   },
 ];
 
@@ -187,14 +185,25 @@ export function Shell({ children }: { children: React.ReactNode }) {
         <div className="mt-4 h-px" style={{ background: "linear-gradient(90deg, transparent, rgba(59,130,246,0.3), transparent)" }} />
       </div>
 
-      {/* ── MINI ROBOT for current section ── */}
+       {/* ── CURRENT SECTION ICON ── */}
       <div className="relative px-4 py-2 flex-shrink-0 flex justify-center">
-        <div className="relative">
+         <div
+           className="relative flex h-12 w-12 items-center justify-center rounded-2xl"
+           style={{
+             background: `linear-gradient(145deg, ${currentItem.glowColor}, rgba(255,255,255,0.04))`,
+             border: `1px solid ${currentItem.accentColor}55`,
+             boxShadow: `0 0 22px ${currentItem.glowColor}`,
+           }}
+         >
           <div
-            className="absolute inset-0 rounded-full blur-2xl pointer-events-none"
-            style={{ background: currentItem.glowColor, opacity: 0.2, transform: "scale(0.9)" }}
+             className="absolute inset-0 rounded-2xl pointer-events-none"
+             style={{ boxShadow: `inset 0 0 18px ${currentItem.glowColor}` }}
           />
-          <RobotMascot variant={currentItem.robot} size="xs" animate />
+           <currentItem.icon
+             className="relative h-6 w-6"
+             strokeWidth={1.8}
+             style={{ color: currentItem.accentColor }}
+           />
         </div>
         <div
           className="absolute bottom-1 left-1/2 -translate-x-1/2 text-[9px] font-medium px-2 py-0.5 rounded-full"
