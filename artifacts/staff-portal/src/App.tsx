@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
@@ -115,6 +116,11 @@ function ProtectedRouter() {
 }
 
 function App() {
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('ediwan-theme');
+    document.documentElement.dataset.theme = savedTheme === 'light' ? 'light' : 'dark';
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>

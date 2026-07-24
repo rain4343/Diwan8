@@ -29,7 +29,7 @@ function ThemeToggle() {
       aria-label={isLight ? "چوونە دۆخی تاریک" : "چوونە دۆخی ڕۆشن"}
       title={isLight ? "دۆخی تاریک" : "دۆخی ڕۆشن"}
       onClick={() => setIsLight((value) => !value)}
-      className="rounded-lg p-2 text-slate-400 transition-colors hover:bg-white/5 hover:text-white"
+      className="theme-toggle rounded-lg p-2 text-slate-400 transition-colors hover:bg-white/5 hover:text-white"
     >
       {isLight ? <Moon className="h-[18px] w-[18px]" /> : <Sun className="h-[18px] w-[18px]" />}
     </button>
@@ -141,10 +141,10 @@ export function Shell({ children }: { children: React.ReactNode }) {
     <div
       className="flex h-full flex-col relative overflow-hidden"
       dir="rtl"
-      style={{
-        background: "linear-gradient(180deg, #02060f 0%, #030b1a 50%, #020810 100%)",
-        borderLeft: "1px solid rgba(255,255,255,0.04)",
-      }}
+       style={{
+         background: "var(--app-sidebar-bg)",
+         borderLeft: "1px solid var(--app-sidebar-border)",
+       }}
     >
       <StarField />
 
@@ -318,7 +318,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
   );
 
   return (
-    <div className="flex h-screen overflow-hidden flex-row-reverse" style={{ background: "#020810" }}>
+    <div className="app-shell flex h-screen overflow-hidden flex-row-reverse" style={{ background: "var(--app-shell-bg)" }}>
       {/* Desktop sidebar */}
       <aside className="hidden lg:flex w-60 shrink-0 flex-col">
         <SidebarContent />
@@ -331,11 +331,11 @@ export function Shell({ children }: { children: React.ReactNode }) {
             variant="ghost"
             size="icon"
             className="lg:hidden fixed top-3 left-3 z-50 rounded-xl border"
-            style={{
-              background: "rgba(5,15,35,0.9)",
-              borderColor: "rgba(255,255,255,0.1)",
-              color: "white",
-            }}
+           style={{
+             background: "var(--app-mobile-menu-bg)",
+             borderColor: "var(--app-control-border)",
+             color: "var(--app-control-text)",
+           }}
           >
             <Menu className="h-5 w-5" />
           </Button>
@@ -346,14 +346,14 @@ export function Shell({ children }: { children: React.ReactNode }) {
       </Sheet>
 
       {/* Main content */}
-      <main className="flex-1 overflow-y-auto" style={{ background: "#030d1e" }}>
+      <main className="app-main flex-1 overflow-y-auto" style={{ background: "var(--app-main-bg)" }}>
         {/* Top bar */}
         <div
           className="sticky top-0 z-40 flex items-center justify-between px-6 py-3"
-          style={{
-            background: "rgba(3,13,30,0.85)",
+           style={{
+             background: "var(--app-topbar-bg)",
             backdropFilter: "blur(12px)",
-            borderBottom: "1px solid rgba(255,255,255,0.05)",
+             borderBottom: "1px solid var(--app-topbar-border)",
           }}
           dir="rtl"
         >

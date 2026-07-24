@@ -71,6 +71,7 @@
    DARK SPACE THEME — E-Diwan Educational Portal
    ═══════════════════════════════════════════════════ */
 :root {
+  color-scheme: dark;
   /* Dark space palette */
   --background: 222 47% 5%;
   --foreground: 213 31% 91%;
@@ -137,6 +138,64 @@
 
   --sidebar-primary-border: rgba(59, 130, 246, 0.3);
   --sidebar-accent-border: rgba(255, 255, 255, 0.05);
+
+  --app-shell-bg: #020810;
+  --app-main-bg: #030d1e;
+  --app-sidebar-bg: linear-gradient(180deg, #02060f 0%, #030b1a 50%, #020810 100%);
+  --app-sidebar-border: rgba(255,255,255,0.04);
+  --app-topbar-bg: rgba(3,13,30,0.85);
+  --app-topbar-border: rgba(255,255,255,0.05);
+  --app-mobile-menu-bg: rgba(5,15,35,0.9);
+  --app-control-border: rgba(255,255,255,0.1);
+  --app-control-text: #ffffff;
+  --app-surface: rgba(255,255,255,0.045);
+  --app-surface-strong: rgba(255,255,255,0.07);
+  --app-surface-border: rgba(255,255,255,0.08);
+  --app-text: #e8f1ef;
+  --app-muted-text: #647b80;
+}
+
+html[data-theme="light"] {
+  color-scheme: light;
+  --background: 195 35% 96%;
+  --foreground: 204 45% 18%;
+  --card: 0 0% 100%;
+  --card-foreground: 204 45% 18%;
+  --card-border: 195 24% 84%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 204 45% 18%;
+  --popover-border: 195 24% 84%;
+  --primary: 194 78% 38%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 195 24% 91%;
+  --secondary-foreground: 204 45% 22%;
+  --muted: 195 24% 92%;
+  --muted-foreground: 204 20% 42%;
+  --accent: 190 35% 90%;
+  --accent-foreground: 204 45% 18%;
+  --border: 195 24% 84%;
+  --input: 0 0% 100%;
+  --ring: 194 78% 38%;
+  --sidebar: 193 45% 97%;
+  --sidebar-foreground: 204 35% 22%;
+  --sidebar-border: 195 24% 84%;
+  --sidebar-primary: 194 78% 38%;
+  --sidebar-accent: 190 35% 91%;
+
+  --app-shell-bg: #edf6f6;
+  --app-main-bg: #f4f9f9;
+  --app-sidebar-bg: linear-gradient(180deg, #ffffff 0%, #eff8f8 52%, #e8f3f4 100%);
+  --app-sidebar-border: rgba(20,90,105,0.14);
+  --app-topbar-bg: rgba(244,249,249,0.9);
+  --app-topbar-border: rgba(20,90,105,0.12);
+  --app-mobile-menu-bg: rgba(255,255,255,0.96);
+  --app-control-border: rgba(20,90,105,0.16);
+  --app-control-text: #164451;
+  --app-surface: rgba(255,255,255,0.82);
+  --app-surface-strong: rgba(255,255,255,0.96);
+  --app-surface-border: rgba(20,90,105,0.14);
+  --app-text: #173d49;
+  --app-muted-text: #52727a;
 }
 
 /* ═══════════════════════════════════════════════════
@@ -151,6 +210,11 @@ body {
   color: hsl(var(--foreground));
   font-family: var(--app-font-sans);
   min-height: 100vh;
+}
+
+#root {
+  min-height: 100vh;
+  background: var(--app-shell-bg);
 }
 
 /* Dashboard document handoff */
@@ -310,11 +374,125 @@ body {
 }
 
 html[data-theme="light"] body {
-  background: #eef4f5;
+  background: var(--app-main-bg);
+  color: var(--app-text);
 }
 
 html[data-theme="light"] .dashboard-handoff-document {
   background: rgba(255, 255, 255, 0.9);
+}
+
+/* Shared light-mode treatment for surfaces that still use legacy inline dark colors. */
+html[data-theme="light"] .app-main .text-white,
+html[data-theme="light"] .app-main .text-white\/70,
+html[data-theme="light"] .app-main .text-white\/80,
+html[data-theme="light"] .app-main .text-white\/50,
+html[data-theme="light"] .app-main .text-slate-100,
+html[data-theme="light"] .app-main .text-slate-200,
+html[data-theme="light"] .app-main .text-slate-300 {
+  color: var(--app-text) !important;
+}
+
+html[data-theme="light"] .app-main button.text-white,
+html[data-theme="light"] .app-main button .text-white,
+html[data-theme="light"] .app-main a.text-white {
+  color: #ffffff !important;
+}
+
+html[data-theme="light"] .app-main .text-white\/50,
+html[data-theme="light"] .app-main .text-slate-400,
+html[data-theme="light"] .app-main .text-slate-500 {
+  color: var(--app-muted-text) !important;
+}
+
+html[data-theme="light"] .app-main .bg-slate-950,
+html[data-theme="light"] .app-main .bg-slate-900 {
+  background: #ffffff !important;
+}
+
+html[data-theme="light"] [style*="rgba(10,18,40"],
+html[data-theme="light"] [style*="rgba(10,20,50"],
+html[data-theme="light"] [style*="rgba(5,15,35"],
+html[data-theme="light"] [style*="rgba(5,10,25"],
+html[data-theme="light"] [style*="#02060f"],
+html[data-theme="light"] [style*="#030b1a"],
+html[data-theme="light"] [style*="#020810"],
+html[data-theme="light"] [style*="#030d1e"],
+html[data-theme="light"] [style*="rgba(3,13,30"] {
+  background: var(--app-surface-strong) !important;
+  color: var(--app-text);
+  border-color: var(--app-surface-border) !important;
+}
+
+html[data-theme="light"] [style*="rgba(255,255,255,0.055"],
+html[data-theme="light"] [style*="rgba(255,255,255,0.045"],
+html[data-theme="light"] [style*="rgba(255,255,255,0.04"],
+html[data-theme="light"] [style*="rgba(255,255,255,0.035"],
+html[data-theme="light"] [style*="rgba(255,255,255,0.02"] {
+  background: var(--app-surface) !important;
+  border-color: var(--app-surface-border) !important;
+}
+
+html[data-theme="light"] .app-main .glass,
+html[data-theme="light"] .app-main .glass-dark,
+html[data-theme="light"] .app-main .glass-card {
+  background: var(--app-surface-strong);
+  border-color: var(--app-surface-border);
+  color: var(--app-text);
+}
+
+html[data-theme="light"] .app-main .nav-item:hover,
+html[data-theme="light"] .app-main .nav-item.active {
+  background: rgba(20, 145, 160, 0.1);
+  color: var(--app-text);
+}
+
+html[data-theme="light"] .app-shell .nav-item:hover,
+html[data-theme="light"] .app-shell .nav-item.active {
+  background: rgba(20, 145, 160, 0.1);
+  color: var(--app-text);
+}
+
+html[data-theme="light"] .app-shell .nav-item {
+  color: #52727a;
+}
+
+html[data-theme="light"] .app-shell [data-testid="button-notifications"] {
+  color: #176277 !important;
+}
+
+html[data-theme="light"] .app-shell [data-testid="button-notifications"]:hover,
+html[data-theme="light"] .theme-toggle:hover {
+  background: rgba(20, 145, 160, 0.1) !important;
+  color: #0f5064 !important;
+}
+
+html[data-theme="light"] .ed-login {
+  background: #edf6f6 !important;
+  color: #173d49 !important;
+}
+
+html[data-theme="light"] .ed-login .ed-login-card {
+  background: linear-gradient(145deg, rgba(255,255,255,0.96), rgba(232,246,246,0.94));
+  border-color: rgba(20,90,105,0.18);
+  box-shadow: 0 30px 90px rgba(20,90,105,0.14);
+}
+
+html[data-theme="light"] .ed-login .ed-login-input {
+  background: rgba(255,255,255,0.78) !important;
+  border-color: rgba(20,90,105,0.2) !important;
+  color: #173d49 !important;
+}
+
+html[data-theme="light"] .ed-login .ed-login-input::placeholder {
+  color: rgba(54,96,106,0.62);
+}
+
+html[data-theme="light"] .ed-login .ed-login-grid {
+  opacity: 0.08;
+  background-image:
+    linear-gradient(rgba(20,90,105,.35) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(20,90,105,.35) 1px, transparent 1px);
 }
 
 @media (max-width: 640px) {
@@ -412,6 +590,10 @@ html[data-theme="light"] .dashboard-handoff-document {
   color: #eff7f2;
   background: rgba(3, 14, 21, 0.3);
   border: 1px solid rgba(188, 215, 211, 0.22);
+}
+
+html[data-theme="light"] .theme-toggle {
+  color: #176277 !important;
 }
 
 .ed-login-input::placeholder {
@@ -662,14 +844,45 @@ input, textarea, select {
   color: hsl(var(--foreground)) !important;
 }
 
+html[data-theme="light"] input,
+html[data-theme="light"] textarea,
+html[data-theme="light"] select {
+  background: rgba(255,255,255,0.9) !important;
+  border-color: rgba(20,90,105,0.2) !important;
+  color: #173d49 !important;
+}
+
 input::placeholder, textarea::placeholder {
   color: rgba(148,163,184,0.45);
+}
+
+html[data-theme="light"] input::placeholder,
+html[data-theme="light"] textarea::placeholder {
+  color: rgba(54,96,106,0.62);
 }
 
 input:focus, textarea:focus, select:focus {
   border-color: rgba(59,130,246,0.5) !important;
   box-shadow: 0 0 0 3px rgba(59,130,246,0.15) !important;
   outline: none !important;
+}
+
+html[data-theme="light"] .data-table thead th {
+  background: rgba(20, 145, 160, 0.07);
+  color: #52727a;
+  border-bottom-color: rgba(20,90,105,0.16);
+}
+
+html[data-theme="light"] .data-table tbody tr:hover {
+  background: rgba(20, 145, 160, 0.06);
+}
+
+html[data-theme="light"] .data-table tbody td {
+  border-bottom-color: rgba(20,90,105,0.1);
+}
+
+html[data-theme="light"] ::-webkit-scrollbar-thumb {
+  background: rgba(20,90,105,0.2);
 }
 
 /* ═══════════════════════════════════════════════════
