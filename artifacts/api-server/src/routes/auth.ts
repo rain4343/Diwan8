@@ -82,7 +82,10 @@ router.post("/auth/login", async (req, res) => {
         return;
       }
 
-      const roles = await getUserRoleNames(user.id);
+       const [roles, permissions] = await Promise.all([
+         getUserRoleNames(user.id),
+         getUserPermissions(user.id),
+       ]);
 
       res.json({
         id: user.id,
@@ -91,6 +94,7 @@ router.post("/auth/login", async (req, res) => {
         email: user.email,
         is_system_admin: user.is_system_admin,
         roles,
+         permissions,
       });
     });
   });

@@ -5,11 +5,12 @@ import {
   usersTable, departmentsTable,
 } from "@workspace/db";
 import { logAudit } from "../lib/audit";
+import { requirePermission } from "../middleware/requireAuth";
 
 const router = Router();
 
 // GET /cases
-router.get("/cases", async (req, res) => {
+router.get("/cases", requirePermission("cases", "read"), async (req, res) => {
   const { dept_id, status, search } = req.query as Record<string, string>;
 
   let rows = await db
@@ -43,7 +44,7 @@ router.get("/cases", async (req, res) => {
 });
 
 // GET /cases/:id
-router.get("/cases/:id", async (req, res) => {
+router.get("/cases/:id", requirePermission("cases", "read"), async (req, res) => {
   const id = Number(req.params.id);
   const [c] = await db
     .select({
@@ -88,7 +89,7 @@ router.get("/cases/:id", async (req, res) => {
 });
 
 // POST /cases
-router.post("/cases", async (req, res) => {
+router.post("/cases", requirePermission("cases", "create"), async (req, res) => {
   const { case_number, title, description, department_id } = req.body as {
     case_number: string; title: string; description?: string; department_id?: number;
   };
@@ -111,7 +112,7 @@ router.post("/cases", async (req, res) => {
 });
 
 // PATCH /cases/:id
-router.patch("/cases/:id", async (req, res) => {
+router.patch("/cases/:id", requirePermission("cases", "update"), async (req, res) => {
   const id = Number(req.params.id);
   const { title, description, department_id, status } = req.body as {
     title?: string; description?: string; department_id?: number; status?: string;
@@ -136,7 +137,7 @@ router.patch("/cases/:id", async (req, res) => {
 });
 
 // DELETE /cases/:id
-router.delete("/cases/:id", async (req, res) => {
+router.delete("/cases/:id", requirePermission("cases", "delete"), async (req, res) => {
   const id = Number(req.params.id);
   const [c] = await db.select().from(casesTable).where(eq(casesTable.id, id));
   if (!c) return res.status(404).json({ error: "پرونده نەدۆزرایەوە" });
@@ -147,7 +148,7 @@ router.delete("/cases/:id", async (req, res) => {
 });
 
 // POST /cases/:id/documents
-router.post("/cases/:id/documents", async (req, res) => {
+router.post("/cases/:id/documents", requirePermission("cases", "update"), async (req, res) => {
   const caseId = Number(req.params.id);
   const { document_id } = req.body as { document_id: number };
 
@@ -171,7 +172,7 @@ router.post("/cases/:id/documents", async (req, res) => {
 });
 
 // DELETE /cases/:id/documents/:docId
-router.delete("/cases/:id/documents/:docId", async (req, res) => {
+router.delete("/cases/:id/documents/:docId", requirePermission("cases", "update"), async (req, res) => {
   const caseId = Number(req.params.id);
   const docId = Number(req.params.docId);
 

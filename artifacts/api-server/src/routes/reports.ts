@@ -4,12 +4,12 @@ import {
   db, documentsTable, departmentsTable, usersTable,
   documentWorkflowStepsTable, deadlinesTable, documentAssignmentsTable,
 } from "@workspace/db";
-import { requireSystemAdmin } from "../middleware/requireAuth";
+import { requirePermission } from "../middleware/requireAuth";
 
 const router = Router();
 
 // GET /reports/documents — document stats overall
-router.get("/reports/documents", async (req, res) => {
+router.get("/reports/documents", requirePermission("reports", "read"), async (req, res) => {
   const { from_date, to_date } = req.query as Record<string, string>;
 
   const allDocs = await db
@@ -42,7 +42,7 @@ router.get("/reports/documents", async (req, res) => {
 });
 
 // GET /reports/departments — per-department document counts
-router.get("/reports/departments", async (req, res) => {
+router.get("/reports/departments", requirePermission("reports", "read"), async (req, res) => {
   const rows = await db
     .select({
       dept_id: departmentsTable.id,
@@ -60,7 +60,7 @@ router.get("/reports/departments", async (req, res) => {
 });
 
 // GET /reports/overdue — overdue documents
-router.get("/reports/overdue", async (req, res) => {
+router.get("/reports/overdue", requirePermission("reports", "read"), async (req, res) => {
   const today = new Date().toISOString().split("T")[0];
 
   const rows = await db
@@ -87,7 +87,7 @@ router.get("/reports/overdue", async (req, res) => {
 });
 
 // GET /reports/export — CSV of all documents
-router.get("/reports/export", async (req, res) => {
+router.get("/reports/export", requirePermission("reports", "export"), async (req, res) => {
   const docs = await db
     .select({
       id: documentsTable.id,

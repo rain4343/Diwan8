@@ -6,7 +6,7 @@ import { db } from "@workspace/db";
 import { usersTable, departmentsTable } from "@workspace/db/schema";
 import { eq, ilike } from "drizzle-orm";
 import { logger } from "../lib/logger";
-import { requireSystemAdmin } from "../middleware/requireAuth";
+import { requirePermission } from "../middleware/requireAuth";
 
 const router = Router();
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } });
@@ -20,7 +20,7 @@ interface ImportRow {
 }
 
 // POST /api/users/import  — parse + bulk insert from Excel
-router.post("/users/import", requireSystemAdmin, upload.single("file"), async (req, res) => {
+router.post("/users/import", requirePermission("users", "create"), upload.single("file"), async (req, res) => {
   if (!req.file) {
     res.status(400).json({ error: "فایلێک نەگەیشت" });
     return;
@@ -99,7 +99,7 @@ router.post("/users/import", requireSystemAdmin, upload.single("file"), async (r
 });
 
 // GET /api/users/import/template  — download Excel template
-router.get("/users/import/template", requireSystemAdmin, (_req, res) => {
+router.get("/users/import/template", requirePermission("users", "create"), (_req, res) => {
   const ws = XLSX.utils.aoa_to_sheet([
     ["ناوی تەواو", "ناوی بەکارهێنەر", "ئیمەیڵ", "ووشەی نهێنی", "هۆبە"],
     ["ئاوات ئەحمەد", "awat.ahmad", "awat@example.com", "123456", "مامۆستایان"],

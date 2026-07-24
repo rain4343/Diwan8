@@ -12,6 +12,7 @@ import importRouter from "./import";
 import reportsRouter from "./reports";
 import leavesRouter from "./leaves";
 import notificationsRouter from "./notifications";
+import permissionsRouter from "./permissions";
 
 const router: IRouter = Router();
 
@@ -31,5 +32,6 @@ router.use(importRouter);
 router.use(reportsRouter);
 router.use(leavesRouter);
 router.use(notificationsRouter);
+router.use(permissionsRouter);
 
 export default router;

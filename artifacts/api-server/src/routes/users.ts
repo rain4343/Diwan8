@@ -5,7 +5,7 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 import { db, usersTable, rolesTable, roleUserTable, departmentsTable } from "@workspace/db";
-import { requireSystemAdmin } from "../middleware/requireAuth";
+import { requirePermission, requireSystemAdmin } from "../middleware/requireAuth";
 import {
   CreateUserBody,
   UpdateUserBody,
@@ -171,7 +171,7 @@ router.get("/users", async (req, res) => {
 });
 
 // POST /users
-router.post("/users", requireSystemAdmin, async (req, res) => {
+router.post("/users", requirePermission("users", "create"), async (req, res) => {
   const parsed = CreateUserBody.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: "Invalid input" });
 
@@ -275,7 +275,7 @@ router.patch("/users/:id", async (req, res) => {
 });
 
 // DELETE /users/:id
-router.delete("/users/:id", requireSystemAdmin, async (req, res) => {
+router.delete("/users/:id", requirePermission("users", "delete"), async (req, res) => {
   const parsed = DeleteUserParams.safeParse(req.params);
   if (!parsed.success) return res.status(400).json({ error: "Invalid user ID" });
 
@@ -306,7 +306,7 @@ router.get("/users/:id/roles", async (req, res) => {
 });
 
 // POST /users/:id/roles
-router.post("/users/:id/roles", requireSystemAdmin, async (req, res) => {
+router.post("/users/:id/roles", requirePermission("users", "update"), async (req, res) => {
   const paramParsed = AssignRoleParams.safeParse(req.params);
   if (!paramParsed.success) return res.status(400).json({ error: "Invalid user ID" });
   const { id } = paramParsed.data;
@@ -327,7 +327,7 @@ router.post("/users/:id/roles", requireSystemAdmin, async (req, res) => {
 });
 
 // DELETE /users/:id/roles/:roleId
-router.delete("/users/:id/roles/:roleId", requireSystemAdmin, async (req, res) => {
+router.delete("/users/:id/roles/:roleId", requirePermission("users", "update"), async (req, res) => {
   const parsed = RemoveRoleParams.safeParse(req.params);
   if (!parsed.success) return res.status(400).json({ error: "Invalid ID" });
   const { id, roleId } = parsed.data;

@@ -1,13 +1,14 @@
 import { Router } from "express";
 import { eq, desc } from "drizzle-orm";
 import { db, leavesTable, usersTable, departmentsTable } from "@workspace/db";
+import { requirePermission } from "../middleware/requireAuth";
 
 const router = Router();
 
 const VALID_LEAVE_TYPES = ["study", "sick", "annual", "maternity", "nursing", "other"];
 
 // ── GET /leaves ─────────────────────────────────────────────────
-router.get("/leaves", async (req, res) => {
+router.get("/leaves", requirePermission("cases", "read"), async (req, res) => {
   try {
     const userId = req.session.userId!;
     const isAdmin = !!req.session.isSystemAdmin;
@@ -42,7 +43,7 @@ router.get("/leaves", async (req, res) => {
 });
 
 // ── POST /leaves ─────────────────────────────────────────────────
-router.post("/leaves", async (req, res) => {
+router.post("/leaves", requirePermission("cases", "create"), async (req, res) => {
   try {
     const userId = req.session.userId!;
     const { leave_type, start_date, end_date, notes, department_id } = req.body;
@@ -82,7 +83,7 @@ router.post("/leaves", async (req, res) => {
 });
 
 // ── PATCH /leaves/:id/status  (admin only) ──────────────────────
-router.patch("/leaves/:id/status", async (req, res) => {
+router.patch("/leaves/:id/status", requirePermission("cases", "update"), async (req, res) => {
   try {
     const userId = req.session.userId!;
     const isAdmin = !!req.session.isSystemAdmin;
@@ -112,7 +113,7 @@ router.patch("/leaves/:id/status", async (req, res) => {
 });
 
 // ── DELETE /leaves/:id  (own pending only) ──────────────────────
-router.delete("/leaves/:id", async (req, res) => {
+router.delete("/leaves/:id", requirePermission("cases", "delete"), async (req, res) => {
   try {
     const userId = req.session.userId!;
     const isAdmin = !!req.session.isSystemAdmin;

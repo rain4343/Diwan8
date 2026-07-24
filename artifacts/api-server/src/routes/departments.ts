@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { eq, inArray } from "drizzle-orm";
 import { db, departmentsTable, usersTable, rolesTable, roleUserTable } from "@workspace/db";
-import { requireSystemAdmin } from "../middleware/requireAuth";
+import { requirePermission } from "../middleware/requireAuth";
 import {
   CreateDepartmentBody,
   UpdateDepartmentBody,
@@ -20,7 +20,7 @@ router.get("/departments", async (_req, res) => {
 });
 
 // POST /departments
-router.post("/departments", requireSystemAdmin, async (req, res) => {
+router.post("/departments", requirePermission("departments", "create"), async (req, res) => {
   const parsed = CreateDepartmentBody.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: "Invalid input" });
 
@@ -42,7 +42,7 @@ router.get("/departments/:id", async (req, res) => {
 });
 
 // PATCH /departments/:id
-router.patch("/departments/:id", requireSystemAdmin, async (req, res) => {
+router.patch("/departments/:id", requirePermission("departments", "update"), async (req, res) => {
   const paramParsed = UpdateDepartmentParams.safeParse(req.params);
   if (!paramParsed.success) return res.status(400).json({ error: "Invalid department ID" });
 
@@ -59,7 +59,7 @@ router.patch("/departments/:id", requireSystemAdmin, async (req, res) => {
 });
 
 // DELETE /departments/:id
-router.delete("/departments/:id", requireSystemAdmin, async (req, res) => {
+router.delete("/departments/:id", requirePermission("departments", "delete"), async (req, res) => {
   const parsed = DeleteDepartmentParams.safeParse(req.params);
   if (!parsed.success) return res.status(400).json({ error: "Invalid department ID" });
 

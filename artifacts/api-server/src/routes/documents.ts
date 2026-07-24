@@ -23,6 +23,7 @@ import {
   ForwardDocumentBody,
 } from "@workspace/api-zod";
 import { getUserRoleNames } from "./auth";
+import { hasPermission, requirePermission } from "../middleware/requireAuth";
 
 const router = Router();
 
@@ -32,7 +33,7 @@ export const FORWARD_DOCUMENTS_ROLE = "ئاڕاستەکردنی نووسراو";
 
 async function canForwardDocuments(userId: number | undefined): Promise<boolean> {
   if (!userId) return false;
-  if (userId === 1) return true;
+  if (await hasPermission(userId, "documents", "update")) return true;
   const roles = await getUserRoleNames(userId);
   return roles.includes(FORWARD_DOCUMENTS_ROLE);
 }
@@ -595,7 +596,7 @@ async function getDocumentWithCreator(id: number) {
 
 // GET /documents/next-number
 // Must be registered before /documents/:id to avoid route conflict
-router.get("/documents/next-number", async (_req, res) => {
+router.get("/documents/next-number", requirePermission("documents", "create"), async (_req, res) => {
   const [last] = await db
     .select({ document_number: documentsTable.document_number })
     .from(documentsTable)
@@ -612,7 +613,7 @@ router.get("/documents/next-number", async (_req, res) => {
 });
 
 // GET /documents
-router.get("/documents", async (req, res) => {
+router.get("/documents", requirePermission("documents", "read"), async (req, res) => {
   const parsed = ListDocumentsQueryParams.safeParse(req.query);
   if (!parsed.success) return res.status(400).json({ error: "Invalid query parameters" });
   const { search, status, direction } = parsed.data;
@@ -645,7 +646,7 @@ router.get("/documents", async (req, res) => {
 });
 
 // POST /documents — multipart/form-data with PDF attachment
-router.post("/documents", upload.single("attachment"), async (req, res) => {
+router.post("/documents", requirePermission("documents", "create"), upload.single("attachment"), async (req, res) => {
   const creatorId = req.session?.userId;
   if (!creatorId) return res.status(401).json({ error: "Authentication required" });
 
@@ -701,7 +702,7 @@ router.post("/documents", upload.single("attachment"), async (req, res) => {
 });
 
 // GET /documents/:id
-router.get("/documents/:id", async (req, res) => {
+router.get("/documents/:id", requirePermission("documents", "read"), async (req, res) => {
   const parsed = GetDocumentParams.safeParse(req.params);
   if (!parsed.success) return res.status(400).json({ error: "Invalid document ID" });
 
@@ -711,7 +712,7 @@ router.get("/documents/:id", async (req, res) => {
 });
 
 // POST /documents/:id/attachment — replace the PDF attachment
-router.post("/documents/:id/attachment", upload.single("attachment"), async (req, res) => {
+router.post("/documents/:id/attachment", requirePermission("documents", "update"), upload.single("attachment"), async (req, res) => {
   const userId = req.session?.userId;
   if (!userId) return res.status(401).json({ error: "Authentication required" });
 
@@ -759,7 +760,7 @@ router.post("/documents/:id/attachment", upload.single("attachment"), async (req
 
 // POST /documents/:id/forward
 // Supports PDF, images (JPG/PNG), Word, and Excel attachments.
-router.post("/documents/:id/forward", async (req, res) => {
+router.post("/documents/:id/forward", requirePermission("documents", "update"), async (req, res) => {
   const userId = req.session?.userId;
   const allowed = await canForwardDocuments(userId);
   if (!allowed) return res.status(403).json({ error: "تۆ دەسەڵاتی ئاڕاستەکردنی نووسراوت نییە" });
@@ -853,7 +854,7 @@ router.post("/documents/:id/forward", async (req, res) => {
 });
 
 // PATCH /documents/:id
-router.patch("/documents/:id", async (req, res) => {
+router.patch("/documents/:id", requirePermission("documents", "update"), async (req, res) => {
   const paramParsed = UpdateDocumentParams.safeParse(req.params);
   if (!paramParsed.success) return res.status(400).json({ error: "Invalid document ID" });
 
@@ -909,7 +910,7 @@ router.patch("/documents/:id", async (req, res) => {
 });
 
 // DELETE /documents/:id
-router.delete("/documents/:id", async (req, res) => {
+router.delete("/documents/:id", requirePermission("documents", "delete"), async (req, res) => {
   const parsed = DeleteDocumentParams.safeParse(req.params);
   if (!parsed.success) return res.status(400).json({ error: "Invalid document ID" });
 
@@ -922,7 +923,7 @@ router.delete("/documents/:id", async (req, res) => {
 });
 
 // GET /documents/:id/logs
-router.get("/documents/:id/logs", async (req, res) => {
+router.get("/documents/:id/logs", requirePermission("documents", "read"), async (req, res) => {
   const parsed = ListDocumentLogsParams.safeParse(req.params);
   if (!parsed.success) return res.status(400).json({ error: "Invalid document ID" });
 
@@ -952,7 +953,7 @@ router.get("/documents/:id/logs", async (req, res) => {
 });
 
 // POST /documents/:id/logs
-router.post("/documents/:id/logs", async (req, res) => {
+router.post("/documents/:id/logs", requirePermission("documents", "update"), async (req, res) => {
   const paramParsed = CreateDocumentLogParams.safeParse(req.params);
   if (!paramParsed.success) return res.status(400).json({ error: "Invalid document ID" });
 
@@ -1247,7 +1248,7 @@ router.post("/documents/:id/sign", async (req, res) => {
 });
 
 // GET /documents/:id/preview — render page 1 of the PDF as a JPEG (cached)
-router.get("/documents/:id/preview", async (req, res) => {
+router.get("/documents/:id/preview", requirePermission("documents", "read"), async (req, res) => {
   if (!req.session?.userId) {
     return res.status(401).json({ error: "Authentication required" });
   }
@@ -1303,7 +1304,7 @@ router.get("/documents/uploads/attachments/:filename", (req, res) => {
 });
 
 // GET /documents/:id/download — force-download the attached PDF with a clean filename
-router.get("/documents/:id/download", async (req, res) => {
+router.get("/documents/:id/download", requirePermission("documents", "read"), async (req, res) => {
   if (!req.session?.userId) {
     return res.status(401).json({ error: "Authentication required" });
   }
